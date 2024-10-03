@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 export const Person = ({ id, name, role, img }) => {
   return (
     <div className='col'>
-      <div className="card" style={{width: "18rem;"}}>
+      <div className="card" style={{width: "18rem"}}>
         <img src={img} className="card-img-top" alt={name} />
           <div className="card-body">
             <h3 className="card-title">{name}</h3>
