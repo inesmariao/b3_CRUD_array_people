@@ -7,6 +7,9 @@ export const People = ( { people, setPeople } ) => {
   // Estado para gestionar el Id de la persona que se está editando
   const [editingId, setEditingId] = useState(null);
 
+  // Estado para establecer si se está editando a una persona
+  const [isEditing, setIsEditing] = useState(false);
+
   // Estado para almacenar temporalmente los datos de la persona que se está editando
   const [editedPerson, setEditedPerson] = useState(
     {
@@ -25,7 +28,7 @@ export const People = ( { people, setPeople } ) => {
     }));
   };
 
-  // Método para crear una nueeva persona en el Team
+  // Método para crear una nueva persona en el Team
   const handleCreate = (e) => {
     e.preventDefault();
 
@@ -34,6 +37,16 @@ export const People = ( { people, setPeople } ) => {
 
     // Reiniciar el estado del formulario 
     setEditedPerson({ name: '', role: '', img: ''});
+  };
+
+  // Método para editar a una persona
+  const handleEdit = (id) => {
+
+    setEditingId(id);
+    setIsEditing(true);
+    const personToEdit = people.find(person => person.id === id);
+
+    setEditedPerson({ ...personToEdit });
   };
 
 
@@ -51,6 +64,7 @@ export const People = ( { people, setPeople } ) => {
                     name={people.name}
                     img={people.img}
                     role={people.role}
+                    handleEdit={() => handleEdit(people.id)}
                   />
                 </div>
               );
@@ -61,10 +75,21 @@ export const People = ( { people, setPeople } ) => {
       {/* Formulario */}
       <div className='container'>
         <h2 className='text-center mt-4' >Crear Nuevo Empleado</h2>
-        <form action="">
+        <form>
           <div>
             <label htmlFor="name">Nombres</label>
-            <input type="text" name="name" value={editedPerson.name} required className="form-control" />
+            <input type="text" name="name" value={editedPerson.name} onChange={handleChange} required className="form-control" />
+          </div>
+          <div>
+            <label htmlFor="role">Rol</label>
+            <input type="text" name="role" value={editedPerson.role} onChange={handleChange}  required className="form-control" />
+          </div>
+          <div>
+            <label htmlFor="img">Avatar</label>
+            <input type="text" name="img" value={editedPerson.img} onChange={handleChange}  required className="form-control" />
+          </div>
+          <div className="mt-2 text-center">
+            <button type="submit" className="btn btn-primary">Modificar</button>
           </div>
         </form>
       </div>
