@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { Person } from "./Person";
 import { useState } from "react";
 
-export const People = ( { people, setPeople } ) => {
+export const People = ({ people, setPeople }) => {
 
   // Estado para gestionar el Id de la persona que se está editando
   const [editingId, setEditingId] = useState(null);
@@ -18,6 +18,9 @@ export const People = ( { people, setPeople } ) => {
       img: ''
     }
   );
+
+  // Estado para gestionar a la persona que vamos a eliminar del array
+  const [personToDelete, setPersonToDelete] = useState(null);
 
   // Método para gestionar los campos del formulario 
   const handleChange = (e) => {
@@ -36,7 +39,7 @@ export const People = ( { people, setPeople } ) => {
     setPeople([...people, { id: people.length + 1, ...editedPerson }]);
 
     // Reiniciar el estado del formulario 
-    setEditedPerson({ name: '', role: '', img: ''});
+    setEditedPerson({ name: '', role: '', img: '' });
   };
 
   // Método para editar a una persona
@@ -47,6 +50,50 @@ export const People = ( { people, setPeople } ) => {
     const personToEdit = people.find(person => person.id === id);
 
     setEditedPerson({ ...personToEdit });
+  };
+
+  // Método para guardar los cambios después de editar a una persona
+  const handleSave = (e) => {
+
+    // Prevenir recarga automática del navegador
+    e.preventDefault();
+
+    // Crear un array nuevo reemplazando los datos de la persona editada
+    const updatePeople = people.map(person => person.id === editingId ? editedPerson : person);
+
+    // Actualizar el estado de personas con el array actualizado
+    setPeople(updatePeople);
+
+    setIsEditing(false);
+
+    setEditingId(null);
+
+    setEditedPerson({
+      name: '',
+      role: '',
+      img: ''
+    });
+  }
+
+  // Métodos para eliminar una persona del array
+
+  // Método #1: guardar el id de la persona a eliminar
+  const handleDelete = (id) => {
+    setPersonToDelete(id);
+  };
+
+  // Método #2: confirmar la eliminación
+  const confirmDelete = () => {
+
+    // Filtrar el array de personas, eliminando la persona que coincide con el id
+    setPeople(people.filter(person => person.id !== personToDelete));
+
+    setPersonToDelete(null);
+  };
+
+  // Método #3: cancelar la eliminación
+  const cancelDelete = () => {
+    setPersonToDelete(null);
   };
 
 
@@ -65,6 +112,7 @@ export const People = ( { people, setPeople } ) => {
                     img={people.img}
                     role={people.role}
                     handleEdit={() => handleEdit(people.id)}
+                    handleDelete={() => handleDelete(people.id)}
                   />
                 </div>
               );
@@ -74,7 +122,7 @@ export const People = ( { people, setPeople } ) => {
       </div>
       {/* Formulario */}
       <div className='container'>
-        <h2 className='text-center mt-4' >Crear Nuevo Empleado</h2>
+        <h2 className='text-center mt-4' > {isEditing ? 'Actualizar Empleado' : 'Crear Nuevo Empleado'} </h2>
         <form>
           <div>
             <label htmlFor="name">Nombres</label>
@@ -82,16 +130,34 @@ export const People = ( { people, setPeople } ) => {
           </div>
           <div>
             <label htmlFor="role">Rol</label>
-            <input type="text" name="role" value={editedPerson.role} onChange={handleChange}  required className="form-control" />
+            <input type="text" name="role" value={editedPerson.role} onChange={handleChange} required className="form-control" />
           </div>
           <div>
             <label htmlFor="img">Avatar</label>
-            <input type="text" name="img" value={editedPerson.img} onChange={handleChange}  required className="form-control" />
+            <input type="text" name="img" value={editedPerson.img} onChange={handleChange} required className="form-control" />
           </div>
           <div className="mt-2 text-center">
-            <button type="submit" className="btn btn-primary">Modificar</button>
+            <button type="submit" className="btn btn-primary" onClick={isEditing ? handleSave : handleCreate}> {isEditing ? 'Actualizar' : 'Crear'} </button>
           </div>
         </form>
+      </div>
+      {/* Modal de confirmación  para eliminar */}
+      <div id="deleteModal" className="modal fade" tabIndex="-1" >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Confirmar Eliminación</h4>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={cancelDelete}></button>
+            </div>
+            <div className="modal-body">
+              <p>¿Estás seguro de eliminar a {people.find(person => person.id === personToDelete)?.name} ?</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={cancelDelete}>Cancelar</button>
+              <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={confirmDelete}>Eliminar</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
